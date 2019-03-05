@@ -92,7 +92,7 @@ function addItem(id) {
   // to add all item information use jQuery to grab item from json
   $.ajax({
     type: "GET",
-    url: "../../products.json",
+    url: "https://hbhowmick.github.io/shopping_cart/products.json",
     async: false,
     success: function(res) {
       for (let i in res) {

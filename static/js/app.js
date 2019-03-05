@@ -61,7 +61,7 @@ function showProducts(res) {
 }
 
 // step 2: get a response from products.json using jquery
-$.get('../../products.json', showProducts)
+$.get('https://hbhowmick.github.io/shopping_cart/products.json', showProducts)
 
 
 
@@ -88,7 +88,6 @@ function addItem(id) {
     var cart = [];
   }
 
-
   // send a response to products.json and create a callback that loops through the products and checks the product id
   // to add all item information use jQuery to grab item from json
   $.ajax({
@@ -97,12 +96,29 @@ function addItem(id) {
     async: false,
     success: function(res) {
       for (let i in res) {
+        var qty = cart.qty;
         if (res[i].id == id) {
-          // if the product id in the current iteration is the same as the id being taken in as the parameter, then push it to the cart.
-          cart.push(res[i]);
-          break;
+          qty += 1;
+        //   cart[i].qty += 1;
+        //   for (let i in cart) {
+        //     if (cart[i].id == res[i].id) {
+        //       console.log('item already in cart');
+        //       // cart.splice(cart[i], 1, res[i]);
+        //       // cart.push(res[i]);
+        //       break;
+        //     } else {
+        //       break;
+        //     }
+        //   }
+        // } else {
+        //     console.log('no');
+        //     // if the product id in the current iteration is the same as the id being taken in as the parameter, then push it to the cart.
+            Object.assign(res[i], {qty: qty});
+            cart.push(res[i]);
+            break;
         }
       }
+      console.log(cart);
     }
   });
 
@@ -164,6 +180,20 @@ function updateTotals() {
   $('.total').text(`$${total}`);
 }
 
+function countDuplicates(id) {
+  let count = 0;
+
+  let cart = JSON.parse(sessionStorage.getItem('cart'));
+
+  for (let i in cart) {
+    // console.log(id, cart[i].id);
+    if (cart[i].id == id) {
+      count += 1;
+    }
+  }
+
+  return count;
+}
 
 // create a showCart method to render all items within the cart variable
 function showCart() {
@@ -184,17 +214,24 @@ function showCart() {
 
     let html = '';
 
+    let duplicates = [];
+
     for (let i in cart) {
-      html += `
-        <tr>
-          <td>1</td>
-          <td>${cart[i].name}</td>
-          <td>${cart[i].price.toFixed(2)}</td>
-          <td>
+      let count = countDuplicates(cart[i].id);
+
+      if (duplicates.indexOf(cart[i].id) == -1) {
+        html += `
+          <tr>
+            <td>${count}</td>
+            <td>${cart[i].name}</td>
+            <td>${(cart[i].price*count).toFixed(2)}</td>
+            <td>
             <button onClick="removeItem(${cart[i].id})" class="btn btn-danger">X</button>
-          </td>
-        </tr>
-      `;
+            </td>
+          </tr>
+        `;
+        duplicates.push(cart[i].id);
+      }
     }
 
 
